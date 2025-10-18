@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { UserButton } from '@stackframe/stack';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Timer, BarChart3, History, LogOut } from 'lucide-react';
+import { Timer, BarChart3, History } from 'lucide-react';
 
 const navigation = [
   { name: 'Timer', href: '/timer', icon: Timer },
@@ -15,7 +16,7 @@ const navigation = [
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { logout, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
@@ -57,18 +58,22 @@ export default function Navbar() {
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600 dark:text-gray-300">
-              {user?.name || 'User'}
-            </span>
-            <Button
-              onClick={logout}
-              variant="outline"
-              size="sm"
-              className="flex items-center space-x-2 transition-all duration-200 hover:scale-105"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Logout</span>
-            </Button>
+            {isAuthenticated ? (
+              <UserButton />
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link href="/login">
+                  <Button variant="outline" size="sm">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button size="sm">
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 

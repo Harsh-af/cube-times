@@ -1,8 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense } from 'react';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useSessionStore } from '@/store/useSessionStore';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 
 export default function MainLayout({
@@ -10,18 +13,42 @@ export default function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { loadAuth, isAuthenticated } = useAuthStore();
+  return (
+    <AuthProvider>
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+        </div>
+      }>
+        <MainLayoutContent>{children}</MainLayoutContent>
+      </Suspense>
+    </AuthProvider>
+  );
+}
+
+function MainLayoutContent({ children }: { children: React.ReactNode }) {
+  const { isLoading, isAuthenticated } = useAuthStore();
+  const { initializeDefaultSessions } = useSessionStore();
   const router = useRouter();
 
   useEffect(() => {
-    loadAuth();
-  }, [loadAuth]);
+    if (isLoading) return; // Still loading
 
-  useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login');
+    } else {
+      // Initialize default sessions when authenticated
+      initializeDefaultSessions();
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLoading, router, initializeDefaultSessions]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return null;

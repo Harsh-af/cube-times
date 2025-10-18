@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useTimerStore } from '@/store/useTimerStore';
 import { useSessionStore } from '@/store/useSessionStore';
 import { generateScramble } from '@/lib/scramble';
@@ -13,11 +13,12 @@ export default function Timer() {
     isRunning,
     isReady,
     currentTime,
+    isFullscreen,
     setRunning,
     setReady,
     setStartTime,
     setCurrentTime,
-    reset,
+    setFullscreen,
   } = useTimerStore();
 
   const {
@@ -33,15 +34,15 @@ export default function Timer() {
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const lastKeyPressRef = useRef<number>(0);
+  const isProcessingRef = useRef<boolean>(false);
 
-  // Create default session if none exists
+  // Set current session if none is selected
   useEffect(() => {
-    if (sessions.length === 0) {
-      createSession('Default Session', '3x3');
-    } else if (!currentSessionId) {
+    if (sessions.length > 0 && !currentSessionId) {
       setCurrentSession(sessions[0].id);
     }
-  }, [sessions, currentSessionId, createSession, setCurrentSession]);
+  }, [sessions, currentSessionId, setCurrentSession]);
 
   // Generate initial scramble
   useEffect(() => {
@@ -70,18 +71,28 @@ export default function Timer() {
     };
   }, [isRunning, setCurrentTime]);
 
-  const handleSpacePress = () => {
-    if (!isReady && !isRunning) {
-      // Start ready state
+  const handleSpacePress = useCallback(() => {
+    // Prevent multiple simultaneous executions
+    if (isProcessingRef.current) {
+      return;
+    }
+    
+    const now = Date.now();
+    // Debounce: prevent multiple rapid presses within 200ms
+    if (now - lastKeyPressRef.current < 200) {
+      return;
+    }
+    
+    isProcessingRef.current = true;
+    lastKeyPressRef.current = now;
+
+    if (!isReady && !isRunning && currentTime === 0) {
+      // Start ready state - timer shows 0.00
       setReady(true);
-    } else if (isReady && !isRunning) {
-      // Start timer
-      setReady(false);
-      setRunning(true);
-      startTimeRef.current = Date.now();
-      setStartTime(startTimeRef.current);
+      setCurrentTime(0);
+      setFullscreen(true); // Enter fullscreen mode
     } else if (isRunning) {
-      // Stop timer
+      // Stop timer and record solve
       setRunning(false);
       if (currentTime > 0) {
         // Use current session or first available session
@@ -97,14 +108,28 @@ export default function Timer() {
       }
       // Generate new scramble
       generateScramble(currentPuzzleType).then(setScramble);
+      setFullscreen(false); // Exit fullscreen mode after stopping
+    } else if (!isReady && !isRunning && currentTime > 0) {
+      // Reset timer after showing final time
+      setCurrentTime(0);
+      setFullscreen(false); // Exit fullscreen mode after reset
     }
-  };
+    
+    // Reset processing flag after a short delay
+    setTimeout(() => {
+      isProcessingRef.current = false;
+    }, 100);
+  }, [isReady, isRunning, currentTime, currentSessionId, sessions, addSolve, currentScramble, currentPuzzleType, setScramble, setReady, setRunning, setCurrentTime, setFullscreen]);
 
-  const handleSpaceRelease = () => {
+  const handleSpaceRelease = useCallback(() => {
     if (isReady) {
+      // Release spacebar - start timer immediately
       setReady(false);
+      setRunning(true);
+      startTimeRef.current = Date.now();
+      setStartTime(startTimeRef.current);
     }
-  };
+  }, [isReady, setReady, setRunning, setStartTime]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -130,7 +155,7 @@ export default function Timer() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isReady, isRunning, handleSpacePress, handleSpaceRelease]);
+  }, [handleSpacePress, handleSpaceRelease]);
 
   // Focus the timer area when component mounts
   useEffect(() => {
@@ -147,13 +172,54 @@ export default function Timer() {
   };
 
   const getTimerText = () => {
-    if (isReady) return 'Ready...';
+    if (isReady) return '0.00';
     if (isRunning) return formatTime(currentTime);
+    if (currentTime > 0) return formatTime(currentTime); // Show final time after stopping
     return 'Hold spacebar to start';
   };
 
+  // Fullscreen timer component
+  if (isFullscreen) {
+    return (
+      <div 
+        className="fixed inset-0 z-50 bg-white dark:bg-gray-900 flex items-center justify-center transition-all duration-500 ease-in-out"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.code === 'Space') {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSpacePress();
+          }
+        }}
+        onKeyUp={(e) => {
+          if (e.code === 'Space') {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSpaceRelease();
+          }
+        }}
+      >
+        {/* Fullscreen Timer Display */}
+        <div className="text-center">
+          <div
+            className={`font-mono font-bold transition-all duration-300 ${getTimerColor()}`}
+            style={{ fontSize: 'clamp(8rem, 20vw, 16rem)' }}
+          >
+            {getTimerText()}
+          </div>
+          <div className="text-gray-600 dark:text-gray-400 text-base mt-8">
+            {isReady && 'Release spacebar to start'}
+            {isRunning && 'Press spacebar to stop'}
+            {!isReady && !isRunning && currentTime > 0 && 'Press spacebar to reset'}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Regular timer component
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full max-w-4xl mx-auto">
       <CardContent className="p-8">
         <div 
           className="text-center space-y-8 focus:outline-none cursor-pointer" 
@@ -183,14 +249,16 @@ export default function Timer() {
           {/* Timer Display */}
           <div className="space-y-4">
             <div
-              className={`text-6xl md:text-8xl font-mono font-bold transition-all duration-300 ${getTimerColor()}`}
+              className={`font-mono font-bold transition-all duration-300 ${getTimerColor()}`}
+              style={{ fontSize: 'clamp(4rem, 10vw, 8rem)' }}
             >
               {getTimerText()}
             </div>
             <div className="text-sm text-gray-500">
               {isReady && 'Release spacebar to start'}
               {isRunning && 'Press spacebar to stop'}
-              {!isReady && !isRunning && 'Hold spacebar to ready'}
+              {!isReady && !isRunning && currentTime > 0 && 'Press spacebar to reset'}
+              {!isReady && !isRunning && currentTime === 0 && 'Hold spacebar to start'}
             </div>
           </div>
 
@@ -199,22 +267,11 @@ export default function Timer() {
             <Button
               onClick={handleSpacePress}
               onMouseUp={handleSpaceRelease}
-              variant={isReady ? 'destructive' : isRunning ? 'destructive' : 'default'}
+              variant={isReady ? 'destructive' : isRunning ? 'destructive' : currentTime > 0 ? 'outline' : 'default'}
               size="lg"
               className="px-8 transition-all duration-200 hover:scale-105"
             >
-              {isReady ? 'Release to Start' : isRunning ? 'Stop' : 'Ready'}
-            </Button>
-            <Button
-              onClick={() => {
-                reset();
-                generateScramble(currentPuzzleType).then(setScramble);
-              }}
-              variant="outline"
-              size="lg"
-              className="transition-all duration-200 hover:scale-105"
-            >
-              Reset
+              {isReady ? 'Release to Start' : isRunning ? 'Stop' : currentTime > 0 ? 'Reset' : 'Ready'}
             </Button>
           </div>
         </div>

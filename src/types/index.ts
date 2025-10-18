@@ -24,6 +24,7 @@ export interface TimerState {
   startTime: number | null;
   currentTime: number;
   lastSolve: Solve | null;
+  isFullscreen: boolean;
 }
 
 export interface Statistics {

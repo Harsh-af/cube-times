@@ -1,57 +1,27 @@
 import { create } from 'zustand';
-import { AuthState } from '@/types';
-import { saveAuthData, loadAuthData } from '@/lib/storage';
-import { toast } from 'sonner';
 
-interface AuthStore extends AuthState {
-  login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => void;
-  loadAuth: () => void;
+interface User {
+  id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+}
+
+interface AuthStore {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  setUser: (user: User | null) => void;
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
+  setIsLoading: (isLoading: boolean) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
-  isAuthenticated: false,
   user: null,
-  
-  login: async (email) => {
-    // Placeholder for future Neon DB integration
-    // For now, just simulate a successful login
-    const user = {
-      id: crypto.randomUUID(),
-      email,
-      name: email.split('@')[0],
-    };
-    
-    set({ isAuthenticated: true, user });
-    saveAuthData({ isAuthenticated: true, user });
-    toast.success(`Welcome back, ${user.name}!`);
-  },
-  
-  signup: async (email, password, name) => {
-    // Placeholder for future Neon DB integration
-    // For now, just simulate a successful signup
-    const user = {
-      id: crypto.randomUUID(),
-      email,
-      name,
-    };
-    
-    set({ isAuthenticated: true, user });
-    saveAuthData({ isAuthenticated: true, user });
-    toast.success(`Welcome to Cube Timer, ${name}!`);
-  },
-  
-  logout: () => {
-    set({ isAuthenticated: false, user: null });
-    saveAuthData({ isAuthenticated: false, user: null });
-    toast.success('Logged out successfully');
-  },
-  
-  loadAuth: () => {
-    const authData = loadAuthData();
-    if (authData) {
-      set(authData);
-    }
-  },
+  isLoading: false,
+  isAuthenticated: false,
+
+  setUser: (user) => set({ user }),
+  setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
+  setIsLoading: (isLoading) => set({ isLoading }),
 }));

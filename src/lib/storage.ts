@@ -37,16 +37,45 @@ export function saveSessions(sessions: Session[]): void {
   saveToStorage(STORAGE_KEYS.SESSIONS, serializedSessions);
 }
 
+import { PuzzleType } from '@/types';
+
+interface SerializedSession {
+  id: string;
+  name: string;
+  puzzleType: string;
+  createdAt: string;
+  solves: SerializedSolve[];
+}
+
+interface SerializedSolve {
+  id: string;
+  time: number;
+  scramble: string;
+  puzzleType: string;
+  sessionId: string;
+  timestamp: string;
+  penalty?: string;
+}
+
 export function loadSessions(): Session[] {
   const serializedSessions = loadFromStorage(STORAGE_KEYS.SESSIONS, []);
-  return serializedSessions.map(session => ({
-    ...session,
-    createdAt: new Date(session.createdAt),
-    solves: session.solves.map(solve => ({
-      ...solve,
-      timestamp: new Date(solve.timestamp),
-    })),
-  }));
+  return serializedSessions.map((session: unknown) => {
+    const s = session as SerializedSession;
+    return {
+      ...s,
+      puzzleType: s.puzzleType as PuzzleType,
+      createdAt: new Date(s.createdAt),
+      solves: s.solves.map((solve: unknown) => {
+        const sv = solve as SerializedSolve;
+        return {
+          ...sv,
+          puzzleType: sv.puzzleType as PuzzleType,
+          penalty: sv.penalty as 'DNF' | '+2' | undefined,
+          timestamp: new Date(sv.timestamp),
+        };
+      }),
+    };
+  });
 }
 
 export function saveCurrentSessionId(sessionId: string): void {

@@ -14,7 +14,7 @@ import { Trash2, Edit, X, Check } from 'lucide-react';
 
 export default function HistoryPage() {
   const { loadSessions, sessions, updateSolve, deleteSolve } = useSessionStore();
-  const { loadAuth, isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const router = useRouter();
 
   const [filteredSolves, setFilteredSolves] = useState<Solve[]>([]);
@@ -25,9 +25,8 @@ export default function HistoryPage() {
   const [editTime, setEditTime] = useState('');
 
   useEffect(() => {
-    loadAuth();
     loadSessions();
-  }, [loadAuth, loadSessions]);
+  }, [loadSessions]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -39,10 +38,10 @@ export default function HistoryPage() {
     let solves: Solve[] = [];
     
     if (selectedSession === 'all') {
-      solves = sessions.flatMap(session => session.solves);
+      solves = sessions.flatMap(session => session.solves || []);
     } else {
       const session = sessions.find(s => s.id === selectedSession);
-      solves = session ? session.solves : [];
+      solves = session && session.solves ? session.solves : [];
     }
 
     if (selectedPuzzleType !== 'all') {
@@ -57,7 +56,11 @@ export default function HistoryPage() {
     }
 
     // Sort by timestamp (newest first)
-    solves.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    solves.sort((a, b) => {
+      const aTime = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
+      const bTime = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
+      return bTime - aTime;
+    });
 
     setFilteredSolves(solves);
   }, [sessions, selectedSession, selectedPuzzleType, searchTerm]);
@@ -240,7 +243,10 @@ export default function HistoryPage() {
                       <div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">Date</div>
                         <div className="text-sm">
-                          {solve.timestamp.toLocaleDateString()} {solve.timestamp.toLocaleTimeString()}
+                          {solve.timestamp instanceof Date 
+                            ? `${solve.timestamp.toLocaleDateString()} ${solve.timestamp.toLocaleTimeString()}`
+                            : `${new Date(solve.timestamp).toLocaleDateString()} ${new Date(solve.timestamp).toLocaleTimeString()}`
+                          }
                         </div>
                       </div>
                     </div>

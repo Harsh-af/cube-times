@@ -1,7 +1,7 @@
 import { Solve, Statistics } from '@/types';
 
 export function calculateStatistics(solves: Solve[]): Statistics {
-  if (solves.length === 0) {
+  if (!solves || solves.length === 0) {
     return {
       totalSolves: 0,
       bestTime: null,
