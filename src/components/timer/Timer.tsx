@@ -130,7 +130,7 @@ export default function Timer() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isReady, isRunning]);
+  }, [isReady, isRunning, handleSpacePress, handleSpaceRelease]);
 
   // Focus the timer area when component mounts
   useEffect(() => {

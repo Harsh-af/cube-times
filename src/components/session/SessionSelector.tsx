@@ -85,7 +85,7 @@ export default function SessionSelector() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div>
                     <div className="text-gray-500 dark:text-gray-400">Puzzle Type</div>
-                    <div className="font-semibold">{session.puzzleType}</div>
+                    <div className="font-semibold">{currentSession.puzzleType}</div>
                   </div>
                   <div>
                     <div className="text-gray-500 dark:text-gray-400">Total Solves</div>
