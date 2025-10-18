@@ -10,6 +10,6 @@ export const stackServerApp = new StackServerApp({
   urls: {
     afterSignIn: "/timer",
     afterSignUp: "/timer",
-    afterSignOut: "/login",
+    afterSignOut: "/",
   },
 });
