@@ -6,7 +6,7 @@ interface TimerStore extends TimerState {
   setReady: (ready: boolean) => void;
   setStartTime: (time: number | null) => void;
   setCurrentTime: (time: number) => void;
-  setLastSolve: (solve: any) => void;
+  setLastSolve: (solve: unknown) => void;
   reset: () => void;
 }
 

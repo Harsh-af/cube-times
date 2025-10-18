@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { formatTime } from '@/lib/format';
-import { Solve, PuzzleType } from '@/types';
+import { Solve } from '@/types';
 import { Trash2, Edit, X, Check } from 'lucide-react';
 
 export default function HistoryPage() {
-  const { loadSessions, sessions, getCurrentSession, updateSolve, deleteSolve } = useSessionStore();
+  const { loadSessions, sessions, updateSolve, deleteSolve } = useSessionStore();
   const { loadAuth, isAuthenticated } = useAuthStore();
   const router = useRouter();
 

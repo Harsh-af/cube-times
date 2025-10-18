@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
-import ThemeToggle from '@/components/layout/ThemeToggle';
 
 export default function MainLayout({
   children,

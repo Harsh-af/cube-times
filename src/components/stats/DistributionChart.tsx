@@ -14,7 +14,7 @@ interface DistributionChartProps {
 export default function DistributionChart({ solves, title, className = '' }: DistributionChartProps) {
   const distributionData = getTimeDistribution(solves, 10);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">

@@ -26,10 +26,22 @@ export default function Timer() {
     currentPuzzleType,
     setScramble,
     addSolve,
+    sessions,
+    createSession,
+    setCurrentSession,
   } = useSessionStore();
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
+
+  // Create default session if none exists
+  useEffect(() => {
+    if (sessions.length === 0) {
+      createSession('Default Session', '3x3');
+    } else if (!currentSessionId) {
+      setCurrentSession(sessions[0].id);
+    }
+  }, [sessions, currentSessionId, createSession, setCurrentSession]);
 
   // Generate initial scramble
   useEffect(() => {
@@ -71,13 +83,17 @@ export default function Timer() {
     } else if (isRunning) {
       // Stop timer
       setRunning(false);
-      if (currentSessionId && currentTime > 0) {
-        addSolve({
-          time: currentTime,
-          scramble: currentScramble,
-          puzzleType: currentPuzzleType,
-          sessionId: currentSessionId,
-        });
+      if (currentTime > 0) {
+        // Use current session or first available session
+        const sessionId = currentSessionId || (sessions.length > 0 ? sessions[0].id : null);
+        if (sessionId) {
+          addSolve({
+            time: currentTime,
+            scramble: currentScramble,
+            puzzleType: currentPuzzleType,
+            sessionId: sessionId,
+          });
+        }
       }
       // Generate new scramble
       generateScramble(currentPuzzleType).then(setScramble);
@@ -93,6 +109,7 @@ export default function Timer() {
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.code === 'Space') {
       e.preventDefault();
+      e.stopPropagation();
       handleSpacePress();
     }
   };
@@ -100,6 +117,7 @@ export default function Timer() {
   const handleKeyUp = (e: KeyboardEvent) => {
     if (e.code === 'Space') {
       e.preventDefault();
+      e.stopPropagation();
       handleSpaceRelease();
     }
   };
@@ -112,7 +130,15 @@ export default function Timer() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isReady, isRunning]);
+  }, [isReady, isRunning, handleKeyDown, handleKeyUp]);
+
+  // Focus the timer area when component mounts
+  useEffect(() => {
+    const timerElement = document.querySelector('[tabindex="0"]') as HTMLElement;
+    if (timerElement) {
+      timerElement.focus();
+    }
+  }, []);
 
   const getTimerColor = () => {
     if (isReady) return 'text-yellow-500 animate-pulse';
@@ -129,7 +155,31 @@ export default function Timer() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardContent className="p-8">
-        <div className="text-center space-y-8">
+        <div 
+          className="text-center space-y-8 focus:outline-none cursor-pointer" 
+          tabIndex={0}
+          onClick={() => {
+            // Focus the timer area when clicked
+            (document.activeElement as HTMLElement)?.blur();
+            setTimeout(() => {
+              (document.querySelector('[tabindex="0"]') as HTMLElement)?.focus();
+            }, 0);
+          }}
+          onKeyDown={(e) => {
+            if (e.code === 'Space') {
+              e.preventDefault();
+              e.stopPropagation();
+              handleSpacePress();
+            }
+          }}
+          onKeyUp={(e) => {
+            if (e.code === 'Space') {
+              e.preventDefault();
+              e.stopPropagation();
+              handleSpaceRelease();
+            }
+          }}
+        >
           {/* Timer Display */}
           <div className="space-y-4">
             <div

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useSessionStore } from '@/store/useSessionStore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -27,7 +27,6 @@ export default function SessionManager({ open, onOpenChange }: SessionManagerPro
     setCurrentSession,
   } = useSessionStore();
 
-  const [editingSession, setEditingSession] = useState<string | null>(null);
   const [newSessionName, setNewSessionName] = useState('');
   const [newSessionPuzzleType, setNewSessionPuzzleType] = useState<PuzzleType>('3x3');
 
@@ -39,10 +38,6 @@ export default function SessionManager({ open, onOpenChange }: SessionManagerPro
     }
   };
 
-  const handleUpdateSession = (id: string, name: string, puzzleType: PuzzleType) => {
-    updateSession(id, { name, puzzleType });
-    setEditingSession(null);
-  };
 
   const handleDeleteSession = (id: string) => {
     if (confirm('Are you sure you want to delete this session? This action cannot be undone.')) {

@@ -1,4 +1,4 @@
-import { Solve, Session } from '@/types';
+import { Session } from '@/types';
 
 const STORAGE_KEYS = {
   SESSIONS: 'cube-timer-sessions',
@@ -57,11 +57,11 @@ export function loadCurrentSessionId(): string | null {
   return loadFromStorage(STORAGE_KEYS.CURRENT_SESSION, null);
 }
 
-export function saveAuthData(authData: any): void {
+export function saveAuthData(authData: unknown): void {
   saveToStorage(STORAGE_KEYS.AUTH, authData);
 }
 
-export function loadAuthData(): any {
+export function loadAuthData(): unknown {
   return loadFromStorage(STORAGE_KEYS.AUTH, null);
 }
 

@@ -11,7 +11,7 @@ import DistributionChart from '@/components/stats/DistributionChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function StatsPage() {
-  const { loadSessions, getCurrentSession, sessions } = useSessionStore();
+  const { loadSessions, getCurrentSession } = useSessionStore();
   const { loadAuth, isAuthenticated } = useAuthStore();
   const router = useRouter();
 

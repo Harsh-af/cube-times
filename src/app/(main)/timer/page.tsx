@@ -9,7 +9,7 @@ import Scramble from '@/components/timer/Scramble';
 import SessionSelector from '@/components/session/SessionSelector';
 
 export default function TimerPage() {
-  const { loadSessions, sessions, currentSessionId } = useSessionStore();
+  const { loadSessions } = useSessionStore();
   const { loadAuth, isAuthenticated } = useAuthStore();
   const router = useRouter();
 
@@ -39,8 +39,6 @@ export default function TimerPage() {
             Track your solves and improve your times
           </p>
         </div>
-
-        <SessionSelector />
 
         <div className="space-y-8 max-w-4xl mx-auto">
           <Scramble />

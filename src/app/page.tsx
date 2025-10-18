@@ -12,7 +12,7 @@ export default function Home() {
             Cube Timer
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-            Track your Rubik's cube solves with precision. Analyze your progress, 
+            Track your Rubik&apos;s cube solves with precision. Analyze your progress, 
             manage sessions, and improve your times with beautiful visualizations.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
