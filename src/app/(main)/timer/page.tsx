@@ -4,13 +4,18 @@ import { useEffect } from 'react';
 import { useSessionStore } from '@/store/useSessionStore';
 import Timer from '@/components/timer/Timer';
 import Scramble from '@/components/timer/Scramble';
+import SessionSelector from '@/components/session/SessionSelector';
 
 export default function TimerPage() {
-  const { loadSessions } = useSessionStore();
+  const { loadSessions, initializeDefaultSessions } = useSessionStore();
 
   useEffect(() => {
-    loadSessions();
-  }, [loadSessions]);
+    const initializeSessions = async () => {
+      await loadSessions();
+      await initializeDefaultSessions();
+    };
+    initializeSessions();
+  }, [loadSessions, initializeDefaultSessions]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 pb-8 overflow-x-hidden">
@@ -26,7 +31,7 @@ export default function TimerPage() {
 
         <div className="space-y-8 max-w-4xl mx-auto">
           <Scramble />
-          {/* <SessionSelector /> */}
+          <SessionSelector />
           <Timer />
         </div>
       </div>
