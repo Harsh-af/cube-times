@@ -106,23 +106,23 @@ export default function Timer() {
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.code === 'Space') {
-      e.preventDefault();
-      e.stopPropagation();
-      handleSpacePress();
-    }
-  };
-
-  const handleKeyUp = (e: KeyboardEvent) => {
-    if (e.code === 'Space') {
-      e.preventDefault();
-      e.stopPropagation();
-      handleSpaceRelease();
-    }
-  };
-
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleSpacePress();
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleSpaceRelease();
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
@@ -130,7 +130,7 @@ export default function Timer() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isReady, isRunning, handleKeyDown, handleKeyUp]);
+  }, [isReady, isRunning]);
 
   // Focus the timer area when component mounts
   useEffect(() => {

@@ -6,7 +6,6 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
 import Timer from '@/components/timer/Timer';
 import Scramble from '@/components/timer/Scramble';
-import SessionSelector from '@/components/session/SessionSelector';
 
 export default function TimerPage() {
   const { loadSessions } = useSessionStore();

@@ -14,7 +14,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   isAuthenticated: false,
   user: null,
   
-  login: async (email, _password) => {
+  login: async (email) => {
     // Placeholder for future Neon DB integration
     // For now, just simulate a successful login
     const user = {

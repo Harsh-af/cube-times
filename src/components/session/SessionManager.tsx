@@ -22,7 +22,6 @@ export default function SessionManager({ open, onOpenChange }: SessionManagerPro
     sessions,
     currentSessionId,
     createSession,
-    updateSession,
     deleteSession,
     setCurrentSession,
   } = useSessionStore();
@@ -201,9 +200,10 @@ export default function SessionManager({ open, onOpenChange }: SessionManagerPro
                             Select
                           </Button>
                           <Button
-                            onClick={() => setEditingSession(session.id)}
+                            onClick={() => {}}
                             variant="outline"
                             size="sm"
+                            disabled
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
