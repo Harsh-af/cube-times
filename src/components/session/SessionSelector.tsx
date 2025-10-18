@@ -74,7 +74,7 @@ export default function SessionSelector() {
               <SelectContent>
                 {sessions.map((session) => (
                   <SelectItem key={session.id} value={session.id}>
-                    {session.name} ({session.puzzleType}) - {session.solves.length} solves
+                    {session.name} ({session.puzzleType}) - {session.solves?.length || 0} solves
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -89,12 +89,12 @@ export default function SessionSelector() {
                   </div>
                   <div>
                     <div className="text-gray-500 dark:text-gray-400">Total Solves</div>
-                    <div className="font-semibold">{currentSession.solves.length}</div>
+                    <div className="font-semibold">{currentSession.solves?.length || 0}</div>
                   </div>
                   <div>
                     <div className="text-gray-500 dark:text-gray-400">Best Time</div>
                     <div className="font-semibold">
-                      {currentSession.solves.length > 0
+                      {currentSession.solves && currentSession.solves.length > 0
                         ? formatTime(Math.min(...currentSession.solves.map(s => s.time + (s.penalty === '+2' ? 2000 : 0))))
                         : 'N/A'
                       }
@@ -103,7 +103,7 @@ export default function SessionSelector() {
                   <div>
                     <div className="text-gray-500 dark:text-gray-400">Average</div>
                     <div className="font-semibold">
-                      {currentSession.solves.length > 0
+                      {currentSession.solves && currentSession.solves.length > 0
                         ? formatTime(currentSession.solves.reduce((sum, s) => sum + s.time + (s.penalty === '+2' ? 2000 : 0), 0) / currentSession.solves.length)
                         : 'N/A'
                       }

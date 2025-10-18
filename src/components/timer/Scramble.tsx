@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useSessionStore } from '@/store/useSessionStore';
-import { generateScramble, getPuzzleDisplayName } from '@/lib/scramble';
+import { generateScramble } from '@/lib/scramble';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -39,7 +39,7 @@ export default function Scramble() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl">
-            {getPuzzleDisplayName(currentPuzzleType)} Scramble
+            Scramble
           </CardTitle>
           <div className="flex items-center gap-2">
             <Select value={currentPuzzleType} onValueChange={handlePuzzleTypeChange}>

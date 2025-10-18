@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Timer, BarChart3, History } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 const navigation = [
   { name: 'Timer', href: '/timer', icon: Timer },
@@ -17,6 +18,29 @@ const navigation = [
 export default function Navbar() {
   const pathname = usePathname();
   const { isAuthenticated } = useAuthStore();
+  
+  // Sliding animation state
+  const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
+  const navRef = useRef<HTMLDivElement>(null);
+  
+  // Update slider position when pathname changes
+  useEffect(() => {
+    if (navRef.current) {
+      const activeIndex = navigation.findIndex(item => item.href === pathname);
+      if (activeIndex !== -1) {
+        const navItems = navRef.current.querySelectorAll('[data-nav-item]');
+        const activeItem = navItems[activeIndex] as HTMLElement;
+        if (activeItem) {
+          const navRect = navRef.current.getBoundingClientRect();
+          const itemRect = activeItem.getBoundingClientRect();
+          setSliderStyle({
+            left: itemRect.left - navRect.left,
+            width: itemRect.width,
+          });
+        }
+      }
+    }
+  }, [pathname]);
 
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
@@ -33,27 +57,40 @@ export default function Navbar() {
           </Link>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
+          <div className="hidden md:flex items-center space-x-12">
+            <div className="relative flex" ref={navRef}>
+              {/* Sliding background */}
+              <div
+                className="absolute top-0 h-full bg-blue-100 dark:bg-blue-900 rounded-md transition-all duration-300 ease-out"
+                style={{
+                  left: `${sliderStyle.left}px`,
+                  width: `${sliderStyle.width}px`,
+                }}
+              />
               
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                    isActive
-                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800'
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
+              {/* Navigation items */}
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.href;
+                
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    data-nav-item
+                    className={cn(
+                      'relative flex items-center space-x-3 px-6 py-3 rounded-md text-base font-semibold transition-colors duration-200 z-10',
+                      isActive
+                        ? 'text-blue-700 dark:text-blue-300'
+                        : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+                    )}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
 
           {/* User Menu */}
@@ -79,27 +116,40 @@ export default function Navbar() {
 
         {/* Mobile Navigation */}
         <div className="md:hidden border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-4 py-4">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
+          <div className="flex items-center justify-center space-x-6 py-4">
+            <div className="relative flex">
+              {/* Sliding background for mobile */}
+              <div
+                className="absolute top-0 h-full bg-blue-100 dark:bg-blue-900 rounded-md transition-all duration-300 ease-out"
+                style={{
+                  left: `${sliderStyle.left}px`,
+                  width: `${sliderStyle.width}px`,
+                }}
+              />
               
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                    isActive
-                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800'
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
+              {/* Mobile navigation items */}
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.href;
+                
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    data-nav-item
+                    className={cn(
+                      'relative flex items-center space-x-2 px-4 py-3 rounded-md text-base font-semibold transition-colors duration-200 z-10',
+                      isActive
+                        ? 'text-blue-700 dark:text-blue-300'
+                        : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+                    )}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="hidden sm:inline">{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useSessionStore } from '@/store/useSessionStore';
 import Timer from '@/components/timer/Timer';
 import Scramble from '@/components/timer/Scramble';
-import SessionSelector from '@/components/session/SessionSelector';
 
 export default function TimerPage() {
   const { loadSessions } = useSessionStore();
@@ -27,6 +26,7 @@ export default function TimerPage() {
 
         <div className="space-y-8 max-w-4xl mx-auto">
           <Scramble />
+          {/* <SessionSelector /> */}
           <Timer />
         </div>
       </div>

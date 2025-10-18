@@ -3,6 +3,25 @@ import { Session, Solve, PuzzleType } from '@/types';
 import { formatTime } from '@/lib/format';
 import { toast } from 'sonner';
 
+// API response types
+interface ApiSession {
+  id: string;
+  name: string;
+  puzzleType: string;
+  createdAt: string;
+  solves: ApiSolve[];
+}
+
+interface ApiSolve {
+  id: string;
+  time: number;
+  scramble: string;
+  puzzleType: string;
+  sessionId: string;
+  timestamp: string;
+  penalty?: string;
+}
+
 interface SessionStore {
   sessions: Session[];
   currentSessionId: string | null;
@@ -23,6 +42,7 @@ interface SessionStore {
   setPuzzleType: (puzzleType: PuzzleType) => void;
   getCurrentSession: () => Session | null;
   getSessionSolves: (sessionId: string) => Solve[];
+  initializeDefaultSessions: () => Promise<void>;
 }
 
 export const useSessionStore = create<SessionStore>((set, get) => ({
@@ -41,16 +61,23 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
         throw new Error('Failed to load sessions');
       }
 
-      const sessions = await response.json();
-      // Transform timestamps from strings to Date objects
-      const transformedSessions = sessions.map((session: any) => ({
-        ...session,
-        createdAt: new Date(session.createdAt),
-        solves: session.solves.map((solve: any) => ({
-          ...solve,
-          timestamp: new Date(solve.timestamp),
-        })),
-      }));
+          const sessions = await response.json();
+          // Transform timestamps from strings to Date objects
+          const transformedSessions = sessions.map((session: ApiSession) => ({
+            id: session.id,
+            name: session.name,
+            puzzleType: session.puzzleType as PuzzleType,
+            createdAt: new Date(session.createdAt),
+            solves: session.solves.map((solve: ApiSolve) => ({
+              id: solve.id,
+              time: solve.time,
+              scramble: solve.scramble,
+              puzzleType: solve.puzzleType as PuzzleType,
+              sessionId: solve.sessionId,
+              timestamp: new Date(solve.timestamp),
+              penalty: solve.penalty as 'DNF' | '+2' | undefined,
+            })),
+          }));
       set({ sessions: transformedSessions, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -173,12 +200,17 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
         throw new Error('Failed to add solve');
       }
 
-      const newSolve = await response.json();
-      // Transform timestamp from string to Date object
-      const transformedSolve = {
-        ...newSolve,
-        timestamp: new Date(newSolve.timestamp),
-      };
+          const newSolve: ApiSolve = await response.json();
+          // Transform timestamp from string to Date object
+          const transformedSolve: Solve = {
+            id: newSolve.id,
+            time: newSolve.time,
+            scramble: newSolve.scramble,
+            puzzleType: newSolve.puzzleType as PuzzleType,
+            sessionId: newSolve.sessionId,
+            timestamp: new Date(newSolve.timestamp),
+            penalty: newSolve.penalty as 'DNF' | '+2' | undefined,
+          };
       
       set((state) => ({
         sessions: state.sessions.map(session =>
@@ -275,18 +307,24 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   },
 
   initializeDefaultSessions: async () => {
-    const { sessions, loadSessions } = get();
+    const { sessions } = get();
     
-    // Only initialize if no sessions exist
-    if (sessions.length === 0) {
-      try {
-        // Create Default Session
+    // Check if we already have the required sessions
+    const hasDefault = sessions.some(s => s.name === 'Default Session');
+    const hasPlayground = sessions.some(s => s.name === 'Playground');
+    
+    try {
+      // Create Default Session if it doesn't exist
+      if (!hasDefault) {
         await get().createSession('Default Session', '3x3');
-        // Create Playground Session
-        await get().createSession('Playground', '3x3');
-      } catch (error) {
-        console.error('Error initializing default sessions:', error);
       }
+      
+      // Create Playground Session if it doesn't exist
+      if (!hasPlayground) {
+        await get().createSession('Playground', '3x3');
+      }
+    } catch (error) {
+      console.error('Error initializing default sessions:', error);
     }
   },
 }));

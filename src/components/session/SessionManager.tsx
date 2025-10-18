@@ -180,8 +180,8 @@ export default function SessionManager({ open, onOpenChange }: SessionManagerPro
                             )}
                           </div>
                           <div className="text-sm text-gray-500 mt-1">
-                            {session.solves.length} solves • Created {session.createdAt.toLocaleDateString()}
-                            {session.solves.length > 0 && (
+                            {session.solves?.length || 0} solves • Created {new Date(session.createdAt).toLocaleDateString()}
+                            {session.solves && session.solves.length > 0 && (
                               <>
                                 {' • Best: '}
                                 {formatTime(Math.min(...session.solves.map(s => s.time + (s.penalty === '+2' ? 2000 : 0))))}

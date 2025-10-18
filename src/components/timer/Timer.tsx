@@ -28,7 +28,6 @@ export default function Timer() {
     setScramble,
     addSolve,
     sessions,
-    createSession,
     setCurrentSession,
   } = useSessionStore();
 
@@ -98,12 +97,18 @@ export default function Timer() {
         // Use current session or first available session
         const sessionId = currentSessionId || (sessions.length > 0 ? sessions[0].id : null);
         if (sessionId) {
-          addSolve({
-            time: currentTime,
-            scramble: currentScramble,
-            puzzleType: currentPuzzleType,
-            sessionId: sessionId,
-          });
+          // Get current session to check if it's Playground
+          const currentSession = sessions.find(s => s.id === sessionId);
+          
+          // Only log solve data if it's NOT the Playground session
+          if (currentSession && currentSession.name !== 'Playground') {
+            addSolve({
+              time: currentTime,
+              scramble: currentScramble,
+              puzzleType: currentPuzzleType,
+              sessionId: sessionId,
+            });
+          }
         }
       }
       // Generate new scramble
@@ -203,11 +208,15 @@ export default function Timer() {
         <div className="text-center">
           <div
             className={`font-mono font-bold transition-all duration-300 ${getTimerColor()}`}
-            style={{ fontSize: 'clamp(8rem, 20vw, 16rem)' }}
+            style={{ 
+              fontSize: getTimerText() === 'Hold spacebar to start' 
+                ? 'clamp(2rem, 6vw, 4rem)' 
+                : 'clamp(8rem, 20vw, 16rem)' 
+            }}
           >
             {getTimerText()}
           </div>
-          <div className="text-gray-600 dark:text-gray-400 text-base mt-8">
+          <div className="text-gray-600 dark:text-gray-400 text-sm mt-8">
             {isReady && 'Release spacebar to start'}
             {isRunning && 'Press spacebar to stop'}
             {!isReady && !isRunning && currentTime > 0 && 'Press spacebar to reset'}
@@ -250,7 +259,11 @@ export default function Timer() {
           <div className="space-y-4">
             <div
               className={`font-mono font-bold transition-all duration-300 ${getTimerColor()}`}
-              style={{ fontSize: 'clamp(4rem, 10vw, 8rem)' }}
+              style={{ 
+                fontSize: getTimerText() === 'Hold spacebar to start' 
+                  ? 'clamp(1.5rem, 4vw, 2.5rem)' 
+                  : 'clamp(4rem, 10vw, 8rem)' 
+              }}
             >
               {getTimerText()}
             </div>
