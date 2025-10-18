@@ -13,7 +13,7 @@ export default function TimerPage() {
   }, [loadSessions]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 pb-8 overflow-x-hidden">
       <div className="w-full max-w-none px-4 space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
