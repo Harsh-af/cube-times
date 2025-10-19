@@ -13,7 +13,7 @@ import { Solve } from '@/types';
 import { Trash2, Edit, X, Check } from 'lucide-react';
 
 export default function HistoryPage() {
-  const { loadSessions, sessions, updateSolve, deleteSolve } = useSessionStore();
+  const { loadSessions, initializeDefaultSessions, sessions, updateSolve, deleteSolve } = useSessionStore();
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
 
@@ -25,8 +25,13 @@ export default function HistoryPage() {
   const [editTime, setEditTime] = useState('');
 
   useEffect(() => {
-    loadSessions();
-  }, [loadSessions]);
+    // Load existing sessions and ensure default sessions exist
+    const initializeSessions = async () => {
+      await loadSessions();
+      await initializeDefaultSessions();
+    };
+    initializeSessions();
+  }, [loadSessions, initializeDefaultSessions]);
 
   useEffect(() => {
     if (!isAuthenticated) {

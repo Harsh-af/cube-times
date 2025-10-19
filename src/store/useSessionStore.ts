@@ -43,6 +43,8 @@ interface SessionStore {
   getCurrentSession: () => Session | null;
   getSessionSolves: (sessionId: string) => Solve[];
   initializeDefaultSessions: () => Promise<void>;
+  resetSessions: () => Promise<void>;
+  resetSessionsFromAPI: () => Promise<void>;
 }
 
 export const useSessionStore = create<SessionStore>((set, get) => ({
@@ -61,23 +63,25 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
         throw new Error('Failed to load sessions');
       }
 
-          const sessions = await response.json();
-          // Transform timestamps from strings to Date objects
-          const transformedSessions = sessions.map((session: ApiSession) => ({
-            id: session.id,
-            name: session.name,
-            puzzleType: session.puzzleType as PuzzleType,
-            createdAt: new Date(session.createdAt),
-            solves: session.solves.map((solve: ApiSolve) => ({
-              id: solve.id,
-              time: solve.time,
-              scramble: solve.scramble,
-              puzzleType: solve.puzzleType as PuzzleType,
-              sessionId: solve.sessionId,
-              timestamp: new Date(solve.timestamp),
-              penalty: solve.penalty as 'DNF' | '+2' | undefined,
-            })),
-          }));
+      const sessions = await response.json();
+      
+      // Transform timestamps from strings to Date objects
+      const transformedSessions = sessions.map((session: ApiSession) => ({
+        id: session.id,
+        name: session.name,
+        puzzleType: session.puzzleType as PuzzleType,
+        createdAt: new Date(session.createdAt),
+        solves: session.solves.map((solve: ApiSolve) => ({
+          id: solve.id,
+          time: solve.time,
+          scramble: solve.scramble,
+          puzzleType: solve.puzzleType as PuzzleType,
+          sessionId: solve.sessionId,
+          timestamp: new Date(solve.timestamp),
+          penalty: solve.penalty as 'DNF' | '+2' | undefined,
+        })),
+      }));
+      
       set({ sessions: transformedSessions, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -309,22 +313,101 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   initializeDefaultSessions: async () => {
     const { sessions } = get();
     
-    // Check if we already have the required sessions
-    const hasDefault = sessions.some(s => s.name === 'Default Session');
-    const hasPlayground = sessions.some(s => s.name === 'Playground');
-    
     try {
-      // Create Default Session if it doesn't exist
+      // Check if we already have the required sessions
+      const hasDefault = sessions.some(s => s.name === 'Default Session');
+      const hasPlayground = sessions.some(s => s.name === 'Playground');
+      
+      // Always ensure these two sessions exist
       if (!hasDefault) {
+        console.log('Creating Default Session...');
         await get().createSession('Default Session', '3x3');
       }
       
-      // Create Playground Session if it doesn't exist
       if (!hasPlayground) {
+        console.log('Creating Playground session...');
         await get().createSession('Playground', '3x3');
       }
+      
+      // Clean up any extra sessions (keep only Default Session and Playground)
+      const extraSessions = sessions.filter(s => 
+        s.name !== 'Default Session' && s.name !== 'Playground'
+      );
+      
+      if (extraSessions.length > 0) {
+        console.log(`Cleaning up ${extraSessions.length} extra sessions...`);
+        for (const session of extraSessions) {
+          try {
+            await get().deleteSession(session.id);
+          } catch (error) {
+            console.error('Error deleting extra session:', error);
+          }
+        }
+      }
+      
+      console.log('Default sessions initialized');
     } catch (error) {
       console.error('Error initializing default sessions:', error);
+    }
+  },
+
+  resetSessions: async () => {
+    try {
+      // Clear all sessions from state
+      set({ sessions: [], currentSessionId: null });
+      
+      // Create exactly 2 sessions
+      await get().createSession('Default Session', '3x3');
+      await get().createSession('Playground', '3x3');
+      
+      console.log('Sessions completely reset');
+    } catch (error) {
+      console.error('Error resetting sessions:', error);
+    }
+  },
+
+  resetSessionsFromAPI: async () => {
+    console.log('Starting resetSessionsFromAPI...');
+    set({ isLoading: true });
+    try {
+      console.log('Calling /api/sessions/reset...');
+      const response = await fetch('/api/sessions/reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Response status:', response.status);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', errorText);
+        throw new Error(`Failed to reset sessions: ${response.status} ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log('API Response:', result);
+      
+      // Transform the sessions to match our format
+      const transformedSessions = result.sessions.map((session: any) => ({
+        id: session.id,
+        name: session.name,
+        puzzleType: session.puzzleType as PuzzleType,
+        createdAt: new Date(session.createdAt),
+        solves: [],
+      }));
+
+      console.log('Transformed sessions:', transformedSessions);
+      set({ 
+        sessions: transformedSessions, 
+        currentSessionId: transformedSessions[0]?.id || null,
+        isLoading: false 
+      });
+      
+      console.log('Sessions reset from API successfully, count:', transformedSessions.length);
+    } catch (error) {
+      set({ isLoading: false });
+      console.error('Error resetting sessions from API:', error);
     }
   },
 }));

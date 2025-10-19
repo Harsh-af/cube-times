@@ -8,9 +8,10 @@ interface StatCardProps {
   value: number | null;
   subtitle?: string;
   className?: string;
+  isTime?: boolean;
 }
 
-export default function StatCard({ title, value, subtitle, className = '' }: StatCardProps) {
+export default function StatCard({ title, value, subtitle, className = '', isTime = true }: StatCardProps) {
   return (
     <Card className={className}>
       <CardHeader className="pb-2">
@@ -20,7 +21,7 @@ export default function StatCard({ title, value, subtitle, className = '' }: Sta
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold text-gray-900 dark:text-white">
-          {value !== null ? formatTime(value) : 'N/A'}
+          {value !== null ? (isTime ? formatTime(value) : value.toString()) : 'N/A'}
         </div>
         {subtitle && (
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">

@@ -28,7 +28,6 @@ export default function MainLayout({
 
 function MainLayoutContent({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated } = useAuthStore();
-  const { initializeDefaultSessions } = useSessionStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -36,11 +35,8 @@ function MainLayoutContent({ children }: { children: React.ReactNode }) {
 
     if (!isAuthenticated) {
       router.push('/login');
-    } else {
-      // Initialize default sessions when authenticated
-      initializeDefaultSessions();
     }
-  }, [isAuthenticated, isLoading, router, initializeDefaultSessions]);
+  }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (

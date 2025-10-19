@@ -11,13 +11,18 @@ import DistributionChart from '@/components/stats/DistributionChart';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function StatsPage() {
-  const { sessions, loadSessions, isLoading } = useSessionStore();
+  const { sessions, loadSessions, initializeDefaultSessions, isLoading } = useSessionStore();
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
-    loadSessions();
-  }, [loadSessions]);
+    // Load existing sessions and ensure default sessions exist
+    const initializeSessions = async () => {
+      await loadSessions();
+      await initializeDefaultSessions();
+    };
+    initializeSessions();
+  }, [loadSessions, initializeDefaultSessions]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -37,9 +42,8 @@ export default function StatsPage() {
     );
   }
 
-  // Get all solves from all sessions (excluding Playground) for overall statistics
+  // Get all solves from all sessions for overall statistics
   const allSolves = sessions
-    .filter(session => session.name !== 'Playground')
     .flatMap(session => session.solves || []);
   const overallStats = allSolves.length > 0 ? calculateStatistics(allSolves) : null;
 
@@ -85,6 +89,7 @@ export default function StatsPage() {
                 title="Total Solves"
                 value={overallStats?.totalSolves ?? null}
                 subtitle="All time"
+                isTime={false}
               />
               <StatCard
                 title="Best Time"

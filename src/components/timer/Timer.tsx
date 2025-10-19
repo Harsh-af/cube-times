@@ -97,13 +97,18 @@ export default function Timer() {
         // Use current session or first available session
         const sessionId = currentSessionId || (sessions.length > 0 ? sessions[0].id : null);
         if (sessionId) {
-          // Log solve data to the current session
-          addSolve({
-            time: currentTime,
-            scramble: currentScramble,
-            puzzleType: currentPuzzleType,
-            sessionId: sessionId,
-          });
+          // Get current session to check if it's Playground
+          const currentSession = sessions.find(s => s.id === sessionId);
+          
+          // Only log solve data if it's NOT the Playground session
+          if (currentSession && currentSession.name !== 'Playground') {
+            addSolve({
+              time: currentTime,
+              scramble: currentScramble,
+              puzzleType: currentPuzzleType,
+              sessionId: sessionId,
+            });
+          }
         }
       }
       // Generate new scramble

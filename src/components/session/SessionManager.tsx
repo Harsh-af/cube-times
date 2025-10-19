@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Edit, Trash2, Download, Upload } from 'lucide-react';
+import { Plus, Edit, Trash2, Download, Upload, Check, X } from 'lucide-react';
 import { PuzzleType } from '@/types';
 import { formatTime } from '@/lib/format';
 
@@ -23,11 +23,14 @@ export default function SessionManager({ open, onOpenChange }: SessionManagerPro
     currentSessionId,
     createSession,
     deleteSession,
+    updateSession,
     setCurrentSession,
   } = useSessionStore();
 
   const [newSessionName, setNewSessionName] = useState('');
   const [newSessionPuzzleType, setNewSessionPuzzleType] = useState<PuzzleType>('3x3');
+  const [editingSession, setEditingSession] = useState<string | null>(null);
+  const [editSessionName, setEditSessionName] = useState('');
 
   const handleCreateSession = () => {
     if (newSessionName.trim()) {
@@ -38,7 +41,31 @@ export default function SessionManager({ open, onOpenChange }: SessionManagerPro
   };
 
 
+  const handleEditSession = (session: { id: string; name: string }) => {
+    setEditingSession(session.id);
+    setEditSessionName(session.name);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingSession && editSessionName.trim()) {
+      updateSession(editingSession, { name: editSessionName.trim() });
+      setEditingSession(null);
+      setEditSessionName('');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingSession(null);
+    setEditSessionName('');
+  };
+
   const handleDeleteSession = (id: string) => {
+    const session = sessions.find(s => s.id === id);
+    if (session && (session.name === 'Default Session' || session.name === 'Playground')) {
+      alert('Cannot delete Default Session or Playground. These are required sessions.');
+      return;
+    }
+    
     if (confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
       deleteSession(id);
     }
@@ -171,7 +198,20 @@ export default function SessionManager({ open, onOpenChange }: SessionManagerPro
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <h4 className="font-semibold">{session.name}</h4>
+                            {editingSession === session.id ? (
+                              <Input
+                                value={editSessionName}
+                                onChange={(e) => setEditSessionName(e.target.value)}
+                                className="h-8 w-48"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleSaveEdit();
+                                  if (e.key === 'Escape') handleCancelEdit();
+                                }}
+                                autoFocus
+                              />
+                            ) : (
+                              <h4 className="font-semibold">{session.name}</h4>
+                            )}
                             <span className="text-sm text-gray-500">({session.puzzleType})</span>
                             {currentSessionId === session.id && (
                               <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
@@ -199,19 +239,41 @@ export default function SessionManager({ open, onOpenChange }: SessionManagerPro
                           >
                             Select
                           </Button>
-                          <Button
-                            onClick={() => {}}
-                            variant="outline"
-                            size="sm"
-                            disabled
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          {editingSession === session.id ? (
+                            <>
+                              <Button
+                                onClick={handleSaveEdit}
+                                variant="outline"
+                                size="sm"
+                                className="text-green-600 hover:text-green-700"
+                              >
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                onClick={handleCancelEdit}
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <Button
+                              onClick={() => handleEditSession(session)}
+                              variant="outline"
+                              size="sm"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             onClick={() => handleDeleteSession(session.id)}
                             variant="outline"
                             size="sm"
                             className="text-red-600 hover:text-red-700"
+                            disabled={session.name === 'Default Session' || session.name === 'Playground'}
+                            title={session.name === 'Default Session' || session.name === 'Playground' ? 'Cannot delete required sessions' : 'Delete session'}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
