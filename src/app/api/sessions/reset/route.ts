@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { stackServerApp } from '@/stack/server'
 import { prisma } from '@/lib/prisma'
 import { ensureUserExists } from '@/lib/user-sync'

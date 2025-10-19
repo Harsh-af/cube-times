@@ -5,7 +5,7 @@ import { useSessionStore } from '@/store/useSessionStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Settings } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import SessionManager from '@/components/session/SessionManager';
 import { formatTime } from '@/lib/format';
 
@@ -15,7 +15,6 @@ export default function SessionDropdown() {
     currentSessionId,
     setCurrentSession,
     getCurrentSession,
-    resetSessionsFromAPI,
   } = useSessionStore();
 
   const [showManager, setShowManager] = useState(false);
@@ -25,10 +24,6 @@ export default function SessionDropdown() {
     setCurrentSession(sessionId);
   };
 
-  const handleResetSessions = async () => {
-    console.log('Manual reset triggered');
-    await resetSessionsFromAPI();
-  };
 
   if (sessions.length === 0) {
     return (

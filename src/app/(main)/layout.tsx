@@ -3,7 +3,6 @@
 import { Suspense } from 'react';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useSessionStore } from '@/store/useSessionStore';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';

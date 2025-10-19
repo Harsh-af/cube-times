@@ -389,7 +389,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       console.log('API Response:', result);
       
       // Transform the sessions to match our format
-      const transformedSessions = result.sessions.map((session: any) => ({
+      const transformedSessions = result.sessions.map((session: ApiSession) => ({
         id: session.id,
         name: session.name,
         puzzleType: session.puzzleType as PuzzleType,
