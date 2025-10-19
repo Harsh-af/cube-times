@@ -12,20 +12,32 @@ interface TimeChartProps {
 }
 
 export default function TimeChart({ solves, title, className = '' }: TimeChartProps) {
-  const chartData = solves.map((solve, index) => ({
+  // Sort solves by timestamp to show them in chronological order
+  const sortedSolves = [...solves].sort((a, b) => {
+    const aTime = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
+    const bTime = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
+    return aTime - bTime;
+  });
+
+  const chartData = sortedSolves.map((solve, index) => ({
     solve: index + 1,
     time: solve.time + (solve.penalty === '+2' ? 2000 : 0),
     penalty: solve.penalty,
+    timestamp: solve.timestamp,
   }));
 
-  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ payload: { time: number; penalty?: string } }>; label?: string }) => {
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ payload: { time: number; penalty?: string; timestamp: Date } }>; label?: string }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
+      const solveDate = data.timestamp instanceof Date ? data.timestamp : new Date(data.timestamp);
       return (
         <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
           <p className="font-semibold">Solve #{label}</p>
           <p className="text-blue-600 dark:text-blue-400">
             Time: {formatTime(data.time)}
+          </p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            {solveDate.toLocaleDateString()} {solveDate.toLocaleTimeString()}
           </p>
           {data.penalty && (
             <p className="text-red-600 dark:text-red-400">
@@ -52,6 +64,7 @@ export default function TimeChart({ solves, title, className = '' }: TimeChartPr
                 dataKey="solve" 
                 tick={{ fontSize: 12 }}
                 tickLine={{ stroke: '#6b7280' }}
+                label={{ value: 'Solve Order (Chronological)', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fontSize: 12 } }}
               />
               <YAxis 
                 tick={{ fontSize: 12 }}
