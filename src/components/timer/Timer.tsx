@@ -228,8 +228,8 @@ export default function Timer() {
 
   // Regular timer component
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardContent className="p-8">
+    <Card className="w-full max-w-6xl mx-auto shadow-2xl h-[500px]">
+      <CardContent className="p-16 h-full flex flex-col justify-center">
         <div 
           className="text-center space-y-8 focus:outline-none cursor-pointer" 
           tabIndex={0}
@@ -261,13 +261,17 @@ export default function Timer() {
               className={`font-mono font-bold transition-all duration-300 ${getTimerColor()}`}
               style={{ 
                 fontSize: getTimerText() === 'Hold spacebar to start' 
-                  ? 'clamp(1.5rem, 4vw, 2.5rem)' 
-                  : 'clamp(4rem, 10vw, 8rem)' 
+                  ? 'clamp(2rem, 5vw, 3rem)' 
+                  : 'clamp(5rem, 12vw, 10rem)',
+                minHeight: 'clamp(5rem, 12vw, 10rem)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             >
               {getTimerText()}
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-lg text-gray-600 dark:text-gray-400 font-medium">
               {isReady && 'Release spacebar to start'}
               {isRunning && 'Press spacebar to stop'}
               {!isReady && !isRunning && currentTime > 0 && 'Press spacebar to reset'}
@@ -282,7 +286,7 @@ export default function Timer() {
               onMouseUp={handleSpaceRelease}
               variant={isReady ? 'destructive' : isRunning ? 'destructive' : currentTime > 0 ? 'outline' : 'default'}
               size="lg"
-              className="px-8 transition-all duration-200 hover:scale-105"
+              className="px-12 py-4 text-lg font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
             >
               {isReady ? 'Release to Start' : isRunning ? 'Stop' : currentTime > 0 ? 'Reset' : 'Ready'}
             </Button>

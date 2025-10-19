@@ -20,7 +20,8 @@ export default function TimerPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 pb-8 overflow-x-hidden">
-      <div className="w-full max-w-none px-4 space-y-8">
+      <div className="w-full max-w-6xl mx-auto px-4 space-y-8">
+        {/* Header */}
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
             Cube Timer
@@ -30,9 +31,14 @@ export default function TimerPage() {
           </p>
         </div>
 
-        <div className="space-y-8 max-w-4xl mx-auto">
+        {/* Top Row - Scramble and Session (2:1 ratio) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Scramble />
           <SessionDropdown />
+        </div>
+
+        {/* Bottom Row - Timer (Main Focus) */}
+        <div className="flex justify-center">
           <Timer />
         </div>
       </div>
