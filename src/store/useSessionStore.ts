@@ -16,12 +16,30 @@ const getAnonymousId = (prefix: string) => {
 
 const parseLocalSessions = (stored: string): Session[] => {
   try {
-    const sessions = JSON.parse(stored) as Array<any>;
+    interface ParsedSession {
+      id: string;
+      name: string;
+      puzzleType: string;
+      createdAt: string;
+      solves: Array<{
+        id: string;
+        time: number;
+        scramble: string;
+        puzzleType: string;
+        sessionId: string;
+        timestamp: string;
+        penalty?: string;
+      }>;
+    }
+    const sessions = JSON.parse(stored) as ParsedSession[];
     return sessions.map((session) => ({
       ...session,
+      puzzleType: session.puzzleType as PuzzleType,
       createdAt: new Date(session.createdAt),
-      solves: (session.solves || []).map((solve: any) => ({
+      solves: (session.solves || []).map((solve: ParsedSession['solves'][0]) => ({
         ...solve,
+        puzzleType: solve.puzzleType as PuzzleType,
+        penalty: solve.penalty as 'DNF' | '+2' | undefined,
         timestamp: new Date(solve.timestamp),
       })),
     }));
