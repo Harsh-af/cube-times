@@ -55,18 +55,16 @@ function calculateAverage(times: number[], count: number): number | null {
   const recent = times.slice(-count);
   const sorted = [...recent].sort((a, b) => a - b);
   
-  // Remove best and worst times for average of 5
   if (count === 5) {
-    sorted.shift(); // Remove best
-    sorted.pop(); // Remove worst
+    sorted.shift();
+    sorted.pop();
     return sorted.reduce((sum, time) => sum + time, 0) / sorted.length;
   }
   
-  // For ao12 and ao100, remove best and worst 5%
   const removeCount = Math.floor(count * 0.05);
   for (let i = 0; i < removeCount; i++) {
-    sorted.shift(); // Remove best
-    sorted.pop(); // Remove worst
+    sorted.shift();
+    sorted.pop();
   }
   
   return sorted.reduce((sum, time) => sum + time, 0) / sorted.length;

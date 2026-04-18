@@ -6,6 +6,7 @@ import { useUser } from '@stackframe/stack';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Timer, BarChart3, History, Zap, Target, Clock, Trophy, ChevronRight } from "lucide-react";
 
 export default function HomePage() {
@@ -30,10 +31,26 @@ export default function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading Cube Timer...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="container mx-auto px-4 py-24">
+          <div className="space-y-8">
+            <Skeleton className="h-20 w-3/4 mx-auto" />
+            <div className="space-y-4 max-w-3xl mx-auto">
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-5/6" />
+              <Skeleton className="h-6 w-4/6" />
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Skeleton className="h-16 w-48" />
+              <Skeleton className="h-16 w-48" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <Skeleton className="h-28" />
+              <Skeleton className="h-28" />
+              <Skeleton className="h-28" />
+              <Skeleton className="h-28" />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -41,30 +58,31 @@ export default function HomePage() {
 
   if (user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Redirecting to timer...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="space-y-4 w-full max-w-sm px-4">
+          <Skeleton className="h-14" />
+          <Skeleton className="h-10" />
+          <Skeleton className="h-10" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="bg-gray-50 dark:bg-gray-900 relative overflow-hidden">
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
+      <div className="relative">
         {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
-          <div className="absolute top-40 left-1/2 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-500"></div>
+        <div className="absolute inset-0">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600/25 dark:bg-blue-400/30 rounded-full filter blur-2xl opacity-95 animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-600/25 dark:bg-blue-400/30 rounded-full filter blur-2xl opacity-95 animate-pulse delay-1000"></div>
+          <div className="absolute top-40 left-1/2 w-80 h-80 bg-blue-600/25 dark:bg-blue-400/30 rounded-full filter blur-2xl opacity-95 animate-pulse delay-500"></div>
         </div>
 
         <div className="relative container mx-auto px-4 py-20 lg:py-32 min-h-screen flex items-center">
           <div className="text-center max-w-4xl mx-auto">
             {/* Main heading with gradient text */}
-            <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent animate-fade-in animate-gradient">
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-6 text-gray-900 dark:text-white animate-fade-in">
               Cube Timer
             </h1>
             
@@ -76,13 +94,13 @@ export default function HomePage() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-fade-in-up delay-400">
-              <Button asChild size="lg" className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 btn-glow">
-                <Link href="/signup" className="flex items-center">
+              <Button asChild size="lg" className="text-lg px-8 py-6 bg-black hover:bg-gray-900 text-white shadow-lg transition-all duration-300 transform hover:scale-105">
+                <Link href="/timer" className="flex items-center">
                   Start Timing Now
                   <Zap className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="text-lg px-8 py-6 border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300">
+              <Button asChild variant="outline" size="lg" className="text-lg px-8 py-6 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:border-blue-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300">
                 <Link href="/login" className="flex items-center">
                   Sign In
                   <ChevronRight className="ml-2 h-5 w-5" />
@@ -93,19 +111,19 @@ export default function HomePage() {
             {/* Stats preview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto animate-fade-in-up delay-600">
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">0.001s</div>
+                <div className="text-3xl font-mono font-semibold text-blue-600 dark:text-blue-400">0.001s</div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">Precision</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">7+</div>
+                <div className="text-3xl font-mono font-semibold text-blue-600 dark:text-blue-400">7+</div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">Puzzle Types</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">∞</div>
+                <div className="text-3xl font-mono font-semibold text-blue-600 dark:text-blue-400">∞</div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">Sessions</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 dark:text-green-400">100%</div>
+                <div className="text-3xl font-mono font-semibold text-blue-600 dark:text-blue-400">100%</div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">Free</div>
               </div>
             </div>
@@ -114,7 +132,11 @@ export default function HomePage() {
       </div>
 
       {/* Features Section */}
-      <div className="py-20 lg:py-32">
+      <div className="py-20 lg:py-32 relative">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-20 left-1/2 w-72 h-72 bg-blue-600/20 dark:bg-blue-400/30 rounded-full blur-2xl opacity-90 animate-pulse"></div>
+          <div className="absolute -bottom-24 right-1/4 w-72 h-72 bg-blue-600/20 dark:bg-blue-400/30 rounded-full blur-2xl opacity-90 animate-pulse delay-700"></div>
+        </div>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
@@ -129,7 +151,7 @@ export default function HomePage() {
             {/* Precision Timer Card */}
             <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm card-hover">
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto mb-4 p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300">
+                <div className="mx-auto mb-4 p-4 bg-blue-600 dark:bg-blue-500 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-200/40 dark:shadow-blue-900/40">
                   <Timer className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Precision Timer</CardTitle>
@@ -148,7 +170,7 @@ export default function HomePage() {
             {/* Advanced Statistics Card */}
             <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm card-hover">
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto mb-4 p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300">
+                <div className="mx-auto mb-4 p-4 bg-indigo-600 dark:bg-indigo-500 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-indigo-200/40 dark:shadow-indigo-900/40">
                   <BarChart3 className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Advanced Statistics</CardTitle>
@@ -167,7 +189,7 @@ export default function HomePage() {
             {/* Session Management Card */}
             <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm card-hover">
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto mb-4 p-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300">
+                <div className="mx-auto mb-4 p-4 bg-emerald-600 dark:bg-emerald-500 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-emerald-200/40 dark:shadow-emerald-900/40">
                   <History className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Session Management</CardTitle>
@@ -186,7 +208,7 @@ export default function HomePage() {
             {/* Puzzle Types Card */}
             <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm card-hover">
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto mb-4 p-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300">
+                <div className="mx-auto mb-4 p-4 bg-fuchsia-600 dark:bg-fuchsia-500 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-fuchsia-200/40 dark:shadow-fuchsia-900/40">
                   <Target className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Multiple Puzzles</CardTitle>
@@ -205,7 +227,7 @@ export default function HomePage() {
             {/* Real-time Analytics Card */}
             <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm card-hover">
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto mb-4 p-4 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300">
+                <div className="mx-auto mb-4 p-4 bg-cyan-600 dark:bg-cyan-500 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-cyan-200/40 dark:shadow-cyan-900/40">
                   <Clock className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Real-time Analytics</CardTitle>
@@ -224,7 +246,7 @@ export default function HomePage() {
             {/* Achievements Card */}
             <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm card-hover">
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto mb-4 p-4 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300">
+                <div className="mx-auto mb-4 p-4 bg-amber-500 dark:bg-amber-400 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-amber-200/40 dark:shadow-amber-900/40">
                   <Trophy className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Achievements</CardTitle>
@@ -245,11 +267,11 @@ export default function HomePage() {
 
 
       {/* Footer */}
-      <footer className="py-12 bg-gray-900 dark:bg-black">
+      <footer className="relative z-10 py-12 bg-gray-900 dark:bg-black">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center mb-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Timer className="h-5 w-5 text-white" />
               </div>
               <span className="text-2xl font-bold text-white">Cube Timer</span>

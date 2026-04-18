@@ -1,11 +1,11 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function MainLayout({
   children,
@@ -15,8 +15,16 @@ export default function MainLayout({
   return (
     <AuthProvider>
       <Suspense fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+          <div className="w-full max-w-5xl space-y-6">
+            <Skeleton className="h-16 w-2/3" />
+            <Skeleton className="h-6 w-5/6" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Skeleton className="h-40" />
+              <Skeleton className="h-40" />
+              <Skeleton className="h-40" />
+            </div>
+          </div>
         </div>
       }>
         <MainLayoutContent>{children}</MainLayoutContent>
@@ -28,24 +36,34 @@ export default function MainLayout({
 function MainLayoutContent({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated } = useAuthStore();
   const router = useRouter();
+  const pathname = usePathname();
+  const allowGuestTimer = pathname === '/timer';
 
   useEffect(() => {
     if (isLoading) return; // Still loading
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !allowGuestTimer) {
       router.push('/login');
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, allowGuestTimer, router]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+        <div className="w-full max-w-5xl space-y-6">
+          <Skeleton className="h-16 w-2/3" />
+          <Skeleton className="h-6 w-5/6" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !allowGuestTimer) {
     return null;
   }
 

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { formatTime } from '@/lib/format';
+import { formatTime, parseTime } from '@/lib/format';
 import { Solve } from '@/types';
 import { Trash2, Edit, X, Check } from 'lucide-react';
 
@@ -77,7 +77,10 @@ export default function HistoryPage() {
 
   const handleSaveEdit = () => {
     if (editingSolve && editTime) {
-      const timeInMs = parseFloat(editTime.replace(':', '')) * 1000;
+      const timeInMs = parseTime(editTime.trim());
+      if (!Number.isFinite(timeInMs) || timeInMs < 0) {
+        return;
+      }
       updateSolve(editingSolve, { time: timeInMs });
       setEditingSolve(null);
       setEditTime('');
@@ -89,16 +92,11 @@ export default function HistoryPage() {
     setEditTime('');
   };
 
-  const handleTogglePenalty = (solveId: string, currentPenalty?: string) => {
-    let newPenalty: 'DNF' | '+2' | undefined;
-    if (!currentPenalty) {
-      newPenalty = '+2';
-    } else if (currentPenalty === '+2') {
-      newPenalty = 'DNF';
-    } else {
-      newPenalty = undefined;
-    }
-    updateSolve(solveId, { penalty: newPenalty });
+  const handleSetPenalty = (
+    solveId: string,
+    penalty: 'DNF' | '+2' | undefined
+  ) => {
+    updateSolve(solveId, { penalty });
   };
 
   const handleDeleteSolve = (solveId: string) => {
@@ -227,6 +225,8 @@ export default function HistoryPage() {
                               onChange={(e) => setEditTime(e.target.value)}
                               className="w-24 h-8"
                             />
+                          ) : solve.penalty === 'DNF' ? (
+                            'DNF'
                           ) : (
                             formatTime(solve.time + (solve.penalty === '+2' ? 2000 : 0))
                           )}
@@ -279,17 +279,40 @@ export default function HistoryPage() {
                       ) : (
                         <>
                           <Button
-                            onClick={() => handleTogglePenalty(solve.id, solve.penalty)}
+                            onClick={() => handleSetPenalty(solve.id, undefined)}
                             size="sm"
-                            variant="outline"
+                            variant={solve.penalty ? 'outline' : 'secondary'}
                             className={
-                              solve.penalty === 'DNF' ? 'text-red-600' :
-                              solve.penalty === '+2' ? 'text-yellow-600' :
-                              'text-gray-600'
+                              !solve.penalty
+                                ? 'bg-slate-100 text-slate-900 border-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700'
+                                : 'text-gray-600'
                             }
                           >
-                            {solve.penalty === 'DNF' ? 'DNF' :
-                             solve.penalty === '+2' ? '+2' : 'OK'}
+                            OK
+                          </Button>
+                          <Button
+                            onClick={() => handleSetPenalty(solve.id, '+2')}
+                            size="sm"
+                            variant={solve.penalty === '+2' ? 'secondary' : 'outline'}
+                            className={
+                              solve.penalty === '+2'
+                                ? 'bg-yellow-100 text-yellow-900 border-yellow-200 hover:bg-yellow-200'
+                                : 'text-gray-600'
+                            }
+                          >
+                            +2
+                          </Button>
+                          <Button
+                            onClick={() => handleSetPenalty(solve.id, 'DNF')}
+                            size="sm"
+                            variant={solve.penalty === 'DNF' ? 'destructive' : 'outline'}
+                            className={
+                              solve.penalty === 'DNF'
+                                ? 'bg-red-100 text-red-900 border-red-200 hover:bg-red-200'
+                                : 'text-gray-600'
+                            }
+                          >
+                            DNF
                           </Button>
                           <Button
                             onClick={() => handleEditSolve(solve)}
